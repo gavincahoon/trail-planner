@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Trip {
+  id              String   @id @default(cuid())
+  name            String
+  location        String
+  park            String
+  days            Int
+  difficulty      String
+  terrain         String
+  description     String
+
+  day1            String
+  day2            String
+  day3            String
+  day4            String?
+
+  permitRequired  Boolean
+  permitLink      String?
+
+  createdAt       DateTime @default(now())
+}
