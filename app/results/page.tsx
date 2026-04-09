@@ -19,6 +19,18 @@ type SearchParams = Record<string, string | string[] | undefined>
 const DAYS_OPTIONS = [2, 3, 4] as const
 const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced'] as const
 const TERRAIN_OPTIONS = ['Desert', 'Mountains', 'Lakes'] as const
+const SORT_OPTIONS = [
+  { value: 'recommended', label: 'Recommended' },
+  { value: 'days', label: 'Shortest trip' },
+  { value: 'easiest', label: 'Easiest' },
+] as const
+const DIFFICULTY_RANK: Record<string, number> = {
+  Beginner: 0,
+  Intermediate: 1,
+  Advanced: 2,
+}
+
+type SortOption = (typeof SORT_OPTIONS)[number]['value']
 
 function getSingleParamValue(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
@@ -83,6 +95,7 @@ export default async function ResultsPage({
   const selectedDaysRaw = getSingleParamValue(params.days)
   const selectedDifficultyRaw = getSingleParamValue(params.difficulty)
   const selectedTerrainRaw = getSingleParamValue(params.terrain)
+  const selectedSortRaw = getSingleParamValue(params.sort)
 
   const selectedDays = DAYS_OPTIONS.find(
     (days) => String(days) === selectedDaysRaw
@@ -93,6 +106,11 @@ export default async function ResultsPage({
   const selectedTerrain = TERRAIN_OPTIONS.find(
     (terrain) => terrain === selectedTerrainRaw
   )
+  const selectedSort: SortOption = SORT_OPTIONS.some(
+    (sort) => sort.value === selectedSortRaw
+  )
+    ? (selectedSortRaw as SortOption)
+    : 'recommended'
 
   const where: Prisma.TripWhereInput = {}
 
@@ -108,9 +126,14 @@ export default async function ResultsPage({
     where.terrain = selectedTerrain
   }
 
+  const orderBy: Prisma.TripOrderByWithRelationInput[] =
+    selectedSort === 'days'
+      ? [{ days: 'asc' }, { name: 'asc' }]
+      : [{ name: 'asc' }]
+
   const trips: TripListItem[] = await prisma.trip.findMany({
     where,
-    orderBy: { name: 'asc' },
+    orderBy,
     select: {
       id: true,
       name: true,
@@ -124,10 +147,46 @@ export default async function ResultsPage({
     },
   })
 
+  if (selectedSort === 'easiest') {
+    trips.sort((a, b) => {
+      const difficultyDelta =
+        (DIFFICULTY_RANK[a.difficulty] ?? Number.MAX_SAFE_INTEGER) -
+        (DIFFICULTY_RANK[b.difficulty] ?? Number.MAX_SAFE_INTEGER)
+
+      if (difficultyDelta !== 0) {
+        return difficultyDelta
+      }
+
+      if (a.days !== b.days) {
+        return a.days - b.days
+      }
+
+      return a.name.localeCompare(b.name)
+    })
+  }
+
   return (
     <div className="mx-auto max-w-5xl p-6 md:p-10">
       <h1 className="mb-6 text-2xl font-bold text-slate-900">Trips</h1>
       <div className="mb-8 space-y-4">
+        <div>
+          <p className="mb-2 text-sm font-semibold text-slate-700">Sort</p>
+          <div className="flex flex-wrap gap-2">
+            {SORT_OPTIONS.map((sort) => {
+              const isSelected = selectedSort === sort.value
+              return (
+                <Link
+                  key={sort.value}
+                  href={getFilterHref(params, 'sort', sort.value)}
+                  className={filterButtonClass(isSelected)}
+                >
+                  {sort.label}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+
         <div>
           <p className="mb-2 text-sm font-semibold text-slate-700">Days</p>
           <div className="flex flex-wrap gap-2">
