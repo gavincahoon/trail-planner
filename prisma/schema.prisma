@@ -26,6 +26,8 @@ model Trip {
   bestSeason      String?
   trailheadInfo   String?
   parkingInfo     String?
+  packingList     String?
+  whyThisTrip     String?
 
   createdAt       DateTime @default(now())
 }

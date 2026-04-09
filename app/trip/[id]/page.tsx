@@ -1,6 +1,23 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
+function getPackingItems(packingList: string | null): string[] {
+  if (!packingList?.trim()) {
+    return [
+      "Lightweight shelter and sleep system suited for forecast conditions",
+      "Water storage and treatment for at least one full hiking day",
+      "Insulation and rain protection layers for temperature swings",
+      "Map, headlamp, first-aid kit, and basic emergency essentials",
+      "Enough food plus one backup meal for schedule changes",
+    ];
+  }
+
+  return packingList
+    .split("\n")
+    .map((item) => item.replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean);
+}
+
 export default async function TripPage({
   params,
 }: {
@@ -25,6 +42,8 @@ export default async function TripPage({
       permitLink: true,
       trailheadInfo: true,
       parkingInfo: true,
+      whyThisTrip: true,
+      packingList: true,
     },
   });
 
@@ -36,6 +55,10 @@ export default async function TripPage({
     { label: "Day 3", details: trip.day3 },
     ...(trip.day4 ? [{ label: "Day 4", details: trip.day4 }] : []),
   ];
+  const whyThisTrip =
+    trip.whyThisTrip?.trim() ||
+    `This route balances a manageable ${trip.days}-day timeline with ${trip.terrain.toLowerCase()} terrain, making it a strong pick for ${trip.difficulty.toLowerCase()} backpackers.`;
+  const packingItems = getPackingItems(trip.packingList);
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 p-6 md:p-10">
@@ -46,9 +69,7 @@ export default async function TripPage({
 
       <section className="rounded-xl border border-amber-200 bg-amber-50 p-5">
         <h2 className="text-lg font-semibold text-amber-900">Why This Trip</h2>
-        <p className="mt-2 text-sm leading-6 text-amber-900">
-          This route balances a manageable {trip.days}-day timeline with {trip.terrain.toLowerCase()} terrain, making it a strong pick for {trip.difficulty.toLowerCase()} backpackers.
-        </p>
+        <p className="mt-2 text-sm leading-6 text-amber-900">{whyThisTrip}</p>
       </section>
 
       <section className="space-y-3">
@@ -124,11 +145,9 @@ export default async function TripPage({
         <h2 className="text-xl font-semibold text-slate-900">Packing List</h2>
         <div className="rounded-lg border border-slate-200 bg-white p-4">
           <ul className="list-inside list-disc space-y-1 text-sm text-slate-700">
-            <li>Lightweight shelter and sleep system suited for forecast conditions</li>
-            <li>Water storage and treatment for at least one full hiking day</li>
-            <li>Insulation and rain protection layers for temperature swings</li>
-            <li>Map, headlamp, first-aid kit, and basic emergency essentials</li>
-            <li>Enough food plus one backup meal for schedule changes</li>
+            {packingItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </div>
       </section>

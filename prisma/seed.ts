@@ -37,6 +37,9 @@ async function main() {
         bestSeason: "Spring and fall",
         trailheadInfo: "Start at Lee Pass Trailhead off Kolob Canyons Road.",
         parkingInfo: "Overnight parking is available at Lee Pass with permit display.",
+        whyThisTrip: "A scenic desert route with manageable mileage and a strong payoff at Kolob Arch.",
+        packingList:
+          "- 3L water carry capacity\n- Sun hoodie and wide-brim hat\n- Lightweight shelter\n- Desert traction-friendly shoes\n- Permit confirmation",
       },
       {
         name: "Glacier Basin Loop",
@@ -55,6 +58,9 @@ async function main() {
         bestSeason: "July to September",
         trailheadInfo: "Bear Lake Trailhead with shuttle access in peak season.",
         parkingInfo: "Park at Park & Ride and take shuttle when lots are full.",
+        whyThisTrip: "A classic alpine loop with big views, varied terrain, and rewarding high-country camps.",
+        packingList:
+          "- Insulation layer for cold mornings\n- Afternoon storm shell\n- Trekking poles for steep sections\n- Water filter\n- Map and downloaded offline route",
       },
       {
         name: "Boundary Waters Lakes Traverse",
@@ -72,6 +78,9 @@ async function main() {
         bestSeason: "Late spring to early fall",
         trailheadInfo: "Entry points vary by permit zone; check your assigned launch.",
         parkingInfo: "Permit stations list nearby overnight parking options.",
+        whyThisTrip: "A beginner-friendly lakes route that keeps navigation simple while delivering quiet campsites.",
+        packingList:
+          "- Dry bags for all gear\n- Bug protection\n- Lightweight rain gear\n- Camp shoes\n- Basic repair kit",
       },
     ],
   });

@@ -11,6 +11,7 @@ type TripListItem = {
   difficulty: string
   terrain: string
   description: string
+  whyThisTrip: string | null
 }
 
 type SearchParams = Record<string, string | string[] | undefined>
@@ -65,6 +66,10 @@ function getShortDescription(text: string): string {
 }
 
 function getWhyThisTrip(trip: TripListItem): string {
+  if (trip.whyThisTrip?.trim()) {
+    return trip.whyThisTrip
+  }
+
   return `Great for a ${trip.days}-day ${trip.difficulty.toLowerCase()} trip through ${trip.terrain.toLowerCase()} terrain in ${trip.park}.`
 }
 
@@ -115,6 +120,7 @@ export default async function ResultsPage({
       difficulty: true,
       terrain: true,
       description: true,
+      whyThisTrip: true,
     },
   })
 
