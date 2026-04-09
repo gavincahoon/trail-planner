@@ -5,6 +5,11 @@ import Link from 'next/link'
 type TripListItem = {
   id: string
   name: string
+  location: string
+  park: string
+  days: number
+  difficulty: string
+  terrain: string
   description: string
 }
 
@@ -50,6 +55,19 @@ function filterButtonClass(isSelected: boolean): string {
     : `${baseClass} border-gray-300 text-gray-700 hover:bg-gray-100`
 }
 
+function getShortDescription(text: string): string {
+  const maxLength = 170
+  if (text.length <= maxLength) {
+    return text
+  }
+
+  return `${text.slice(0, maxLength).trimEnd()}...`
+}
+
+function getWhyThisTrip(trip: TripListItem): string {
+  return `Great for a ${trip.days}-day ${trip.difficulty.toLowerCase()} trip through ${trip.terrain.toLowerCase()} terrain in ${trip.park}.`
+}
+
 export default async function ResultsPage({
   searchParams,
 }: {
@@ -85,17 +103,27 @@ export default async function ResultsPage({
     where.terrain = selectedTerrain
   }
 
-  const trips = await prisma.trip.findMany({
+  const trips: TripListItem[] = await prisma.trip.findMany({
     where,
     orderBy: { name: 'asc' },
+    select: {
+      id: true,
+      name: true,
+      location: true,
+      park: true,
+      days: true,
+      difficulty: true,
+      terrain: true,
+      description: true,
+    },
   })
 
   return (
-    <div className="p-10">
-      <h1 className="text-2xl font-bold mb-6">Trips</h1>
+    <div className="mx-auto max-w-5xl p-6 md:p-10">
+      <h1 className="mb-6 text-2xl font-bold text-slate-900">Trips</h1>
       <div className="mb-8 space-y-4">
         <div>
-          <p className="mb-2 text-sm font-semibold text-gray-700">Days</p>
+          <p className="mb-2 text-sm font-semibold text-slate-700">Days</p>
           <div className="flex flex-wrap gap-2">
             {DAYS_OPTIONS.map((days) => {
               const value = String(days)
@@ -114,7 +142,7 @@ export default async function ResultsPage({
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-semibold text-gray-700">Difficulty</p>
+          <p className="mb-2 text-sm font-semibold text-slate-700">Difficulty</p>
           <div className="flex flex-wrap gap-2">
             {DIFFICULTY_OPTIONS.map((difficulty) => {
               const isSelected = selectedDifficulty === difficulty
@@ -132,7 +160,7 @@ export default async function ResultsPage({
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-semibold text-gray-700">Terrain</p>
+          <p className="mb-2 text-sm font-semibold text-slate-700">Terrain</p>
           <div className="flex flex-wrap gap-2">
             {TERRAIN_OPTIONS.map((terrain) => {
               const isSelected = selectedTerrain === terrain
@@ -155,19 +183,53 @@ export default async function ResultsPage({
       </div>
 
       {trips.length === 0 && (
-        <p className="mb-4 text-gray-600">No trips match these filters.</p>
+        <p className="mb-4 text-slate-600">No trips match these filters.</p>
       )}
 
-      {trips.map((trip: TripListItem) => (
-        <div key={trip.id} className="mb-4 border p-4">
-          <h2 className="text-xl">{trip.name}</h2>
-          <p>{trip.description}</p>
+      <div className="space-y-4">
+        {trips.map((trip) => (
+          <Link
+            key={trip.id}
+            href={`/trip/${trip.id}`}
+            className="group block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">{trip.name}</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  {trip.location} ({trip.park})
+                </p>
+              </div>
+              <span className="text-sm font-medium text-blue-700 transition group-hover:translate-x-0.5">
+                View details →
+              </span>
+            </div>
 
-          <Link href={`/trip/${trip.id}`} className="text-blue-500">
-            View Trip →
+            <div className="mb-4 flex flex-wrap gap-2">
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                {trip.days} days
+              </span>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                {trip.difficulty}
+              </span>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                {trip.terrain}
+              </span>
+            </div>
+
+            <p className="mb-4 text-sm leading-6 text-slate-700">
+              {getShortDescription(trip.description)}
+            </p>
+
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                Why this trip
+              </p>
+              <p className="mt-1 text-sm text-amber-900">{getWhyThisTrip(trip)}</p>
+            </div>
           </Link>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
