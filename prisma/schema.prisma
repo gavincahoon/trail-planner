@@ -23,6 +23,9 @@ model Trip {
 
   permitRequired  Boolean
   permitLink      String?
+  bestSeason      String?
+  trailheadInfo   String?
+  parkingInfo     String?
 
   createdAt       DateTime @default(now())
 }

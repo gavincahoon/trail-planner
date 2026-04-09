@@ -26,7 +26,10 @@ async function main() {
       day2: "Day hike to Kolob Arch and explore Beartrap Canyon.",
       day3: "Hike back to Lee Pass.",
       permitRequired: true,
-      permitLink: "https://www.recreation.gov"
+      permitLink: "https://www.recreation.gov",
+      bestSeason: "Spring and fall",
+      trailheadInfo: "Start at Lee Pass Trailhead off Kolob Canyons Road.",
+      parkingInfo: "Overnight parking is available at Lee Pass with permit display.",
     }
   })
 }
