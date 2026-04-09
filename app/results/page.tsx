@@ -248,7 +248,18 @@ export default async function ResultsPage({
       </div>
 
       {trips.length === 0 && (
-        <p className="mb-4 text-slate-600">No trips match these filters.</p>
+        <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-5">
+          <p className="text-base font-semibold text-slate-900">No trips match your filters</p>
+          <p className="mt-1 text-sm text-slate-600">
+            Try removing one or more filters to see more trip options.
+          </p>
+          <Link
+            href="/results"
+            className="mt-4 inline-flex rounded border border-blue-600 bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Reset filters
+          </Link>
+        </div>
       )}
 
       <div className="space-y-4">
