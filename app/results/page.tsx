@@ -62,10 +62,11 @@ function getFilterHref(params: SearchParams, key: string, value: string): string
 }
 
 function filterButtonClass(isSelected: boolean): string {
-  const baseClass = 'rounded border px-3 py-1 text-sm'
+  const baseClass =
+    'flex h-12 w-full items-center justify-center rounded-xl px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2'
   return isSelected
-    ? `${baseClass} border-blue-600 bg-blue-600 text-white`
-    : `${baseClass} border-gray-300 text-gray-700 hover:bg-gray-100`
+    ? `${baseClass} bg-black text-white`
+    : `${baseClass} border border-gray-300 bg-white text-gray-800 hover:bg-gray-50`
 }
 
 function getShortDescription(text: string): string {
@@ -166,12 +167,12 @@ export default async function ResultsPage({
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-6 md:p-10">
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">Trips</h1>
-      <div className="mb-8 space-y-4">
+    <main className="space-y-6">
+      <h1 className="text-2xl font-bold text-slate-900">Trips</h1>
+      <section className="space-y-4">
         <div>
           <p className="mb-2 text-sm font-semibold text-slate-700">Sort</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2">
             {SORT_OPTIONS.map((sort) => {
               const isSelected = selectedSort === sort.value
               return (
@@ -189,7 +190,7 @@ export default async function ResultsPage({
 
         <div>
           <p className="mb-2 text-sm font-semibold text-slate-700">Days</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2">
             {DAYS_OPTIONS.map((days) => {
               const value = String(days)
               const isSelected = selectedDays === days
@@ -208,7 +209,7 @@ export default async function ResultsPage({
 
         <div>
           <p className="mb-2 text-sm font-semibold text-slate-700">Difficulty</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2">
             {DIFFICULTY_OPTIONS.map((difficulty) => {
               const isSelected = selectedDifficulty === difficulty
               return (
@@ -226,7 +227,7 @@ export default async function ResultsPage({
 
         <div>
           <p className="mb-2 text-sm font-semibold text-slate-700">Terrain</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2">
             {TERRAIN_OPTIONS.map((terrain) => {
               const isSelected = selectedTerrain === terrain
               return (
@@ -242,10 +243,13 @@ export default async function ResultsPage({
           </div>
         </div>
 
-        <Link href="/results" className="inline-block text-sm text-blue-600 hover:underline">
+        <Link
+          href="/results"
+          className="flex h-12 w-full items-center justify-center rounded-xl border border-gray-300 px-4 text-sm font-medium text-gray-800 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+        >
           Clear filters
         </Link>
-      </div>
+      </section>
 
       {trips.length === 0 && (
         <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-5">
@@ -255,14 +259,14 @@ export default async function ResultsPage({
           </p>
           <Link
             href="/results"
-            className="mt-4 inline-flex rounded border border-blue-600 bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-black px-4 text-sm font-medium text-white transition hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
           >
             Reset filters
           </Link>
         </div>
       )}
 
-      <div className="space-y-4">
+      <section className="space-y-4">
         {trips.map((trip) => (
           <Link
             key={trip.id}
@@ -305,7 +309,7 @@ export default async function ResultsPage({
             </div>
           </Link>
         ))}
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }

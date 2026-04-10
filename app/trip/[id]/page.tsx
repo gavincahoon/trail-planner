@@ -61,9 +61,9 @@ export default async function TripPage({
   const packingItems = getPackingItems(trip.packingList);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 p-6 md:p-10">
+    <main className="space-y-6">
       <header className="space-y-3">
-        <h1 className="text-3xl font-bold text-slate-900 md:text-4xl">{trip.name}</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{trip.name}</h1>
         <p className="text-base leading-7 text-slate-700">{trip.description}</p>
       </header>
 
@@ -115,21 +115,22 @@ export default async function TripPage({
             <span className="font-semibold text-slate-900">Permit required:</span>{" "}
             {trip.permitRequired ? "Yes" : "No"}
           </p>
-          <p className="text-sm text-slate-700">
-            <span className="font-semibold text-slate-900">Permit link:</span>{" "}
-            {trip.permitLink ? (
+          <div className="space-y-2">
+            <p className="text-sm text-slate-700">
+              <span className="font-semibold text-slate-900">Permit link:</span>{" "}
+              {trip.permitLink ? "Available below" : "Not specified"}
+            </p>
+            {trip.permitLink && (
               <a
                 href={trip.permitLink}
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-700 underline underline-offset-2 hover:text-blue-800"
+                className="flex h-12 w-full items-center justify-center rounded-xl border border-gray-300 px-4 text-sm font-medium text-gray-800 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
               >
                 Get permit
               </a>
-            ) : (
-              "Not specified"
             )}
-          </p>
+          </div>
           <p className="text-sm text-slate-700">
             <span className="font-semibold text-slate-900">Trailhead info:</span>{" "}
             {trip.trailheadInfo ?? "Not specified"}
@@ -151,6 +152,6 @@ export default async function TripPage({
           </ul>
         </div>
       </section>
-    </div>
+    </main>
   );
 }
