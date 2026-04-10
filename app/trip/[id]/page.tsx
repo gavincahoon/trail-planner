@@ -61,10 +61,11 @@ export default async function TripPage({
   const packingItems = getPackingItems(trip.packingList);
 
   return (
-    <main className="space-y-6">
+    <div className="relative">
+      <main className="space-y-8 pb-28">
       <header className="space-y-3">
-        <h1 className="text-2xl font-bold text-slate-900">{trip.name}</h1>
-        <p className="text-base leading-7 text-slate-700">{trip.description}</p>
+        <h1 className="text-3xl font-bold leading-tight text-slate-900">{trip.name}</h1>
+        <p className="text-sm leading-6 text-slate-700">{trip.description}</p>
       </header>
 
       <section className="rounded-xl border border-amber-200 bg-amber-50 p-5">
@@ -72,22 +73,22 @@ export default async function TripPage({
         <p className="mt-2 text-sm leading-6 text-amber-900">{whyThisTrip}</p>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-900">Overview</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Days</p>
             <p className="mt-1 text-sm font-medium text-slate-900">{trip.days}</p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Difficulty</p>
             <p className="mt-1 text-sm font-medium text-slate-900">{trip.difficulty}</p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Terrain</p>
             <p className="mt-1 text-sm font-medium text-slate-900">{trip.terrain}</p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Best season</p>
             <p className="mt-1 text-sm font-medium text-slate-900">
               {trip.bestSeason ?? "Not specified"}
@@ -96,11 +97,11 @@ export default async function TripPage({
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-900">Itinerary</h2>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {itineraryDays.map((day) => (
-            <div key={day.label} className="rounded-lg border border-slate-200 bg-white p-4">
+            <div key={day.label} className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-sm font-semibold text-slate-900">{day.label}</p>
               <p className="mt-1 text-sm leading-6 text-slate-700">{day.details}</p>
             </div>
@@ -108,15 +109,15 @@ export default async function TripPage({
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-900">Logistics</h2>
-        <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-700">
+        <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
+          <p className="text-sm leading-6 text-slate-700">
             <span className="font-semibold text-slate-900">Permit required:</span>{" "}
             {trip.permitRequired ? "Yes" : "No"}
           </p>
           <div className="space-y-2">
-            <p className="text-sm text-slate-700">
+            <p className="text-sm leading-6 text-slate-700">
               <span className="font-semibold text-slate-900">Permit link:</span>{" "}
               {trip.permitLink ? "Available below" : "Not specified"}
             </p>
@@ -131,27 +132,39 @@ export default async function TripPage({
               </a>
             )}
           </div>
-          <p className="text-sm text-slate-700">
+          <p className="text-sm leading-6 text-slate-700">
             <span className="font-semibold text-slate-900">Trailhead info:</span>{" "}
             {trip.trailheadInfo ?? "Not specified"}
           </p>
-          <p className="text-sm text-slate-700">
+          <p className="text-sm leading-6 text-slate-700">
             <span className="font-semibold text-slate-900">Parking info:</span>{" "}
             {trip.parkingInfo ?? "Not specified"}
           </p>
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-900">Packing List</h2>
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <ul className="list-inside list-disc space-y-1 text-sm text-slate-700">
+        <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <ul className="list-inside list-disc space-y-2 text-sm leading-6 text-slate-700">
             {packingItems.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </div>
       </section>
-    </main>
+      </main>
+
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 shadow-sm">
+        <div className="mx-auto w-full max-w-md">
+          <button
+            type="button"
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-black px-4 text-sm font-medium text-white transition hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+          >
+            Save Trip
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

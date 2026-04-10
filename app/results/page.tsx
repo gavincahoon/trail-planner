@@ -266,42 +266,37 @@ export default async function ResultsPage({
         </div>
       )}
 
-      <section className="space-y-4">
+      <section className="space-y-5">
         {trips.map((trip) => (
           <Link
             key={trip.id}
             href={`/trip/${trip.id}`}
-            className="group block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="group block rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
           >
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">{trip.name}</h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  {trip.location} ({trip.park})
-                </p>
-              </div>
-              <span className="text-sm font-medium text-blue-700 transition group-hover:translate-x-0.5">
-                View details →
-              </span>
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-slate-900">{trip.name}</h2>
+              <p className="text-sm text-slate-500">
+                {trip.location} ({trip.park})
+              </p>
             </div>
 
-            <div className="mb-4 flex flex-wrap gap-2">
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="rounded-full bg-gray-100 px-2 py-1 text-sm text-slate-700">
                 {trip.days} days
               </span>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+              <span className="rounded-full bg-gray-100 px-2 py-1 text-sm text-slate-700">
                 {trip.difficulty}
               </span>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+              <span className="rounded-full bg-gray-100 px-2 py-1 text-sm text-slate-700">
                 {trip.terrain}
               </span>
             </div>
 
-            <p className="mb-4 text-sm leading-6 text-slate-700">
+            <p className="mt-3 text-sm leading-6 text-slate-700">
               {getShortDescription(trip.description)}
             </p>
 
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
                 Why this trip
               </p>
