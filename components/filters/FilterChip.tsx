@@ -2,21 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type FilterChipProps = {
+type FilterChipProps<T extends string> = {
   label: string;
-  selectedValue: string;
+  selectedValue: T;
   isActive: boolean;
-  options: readonly string[];
-  onSelect: (value: string) => void;
+  options: readonly T[];
+  onSelect: (value: T) => void;
 };
 
-export function FilterChip({
+export function FilterChip<T extends string>({
   label,
   selectedValue,
   isActive,
   options,
   onSelect,
-}: FilterChipProps) {
+}: FilterChipProps<T>) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 

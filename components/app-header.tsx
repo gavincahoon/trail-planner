@@ -7,6 +7,8 @@ export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const showBack = pathname !== "/";
+  const navLinkClass =
+    "rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2";
 
   return (
     <header className="border-b border-slate-200 bg-white">
@@ -23,9 +25,12 @@ export function AppHeader() {
           )}
           <Link
             href="/"
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+            className={navLinkClass}
           >
             Home
+          </Link>
+          <Link href="/saved-trips" className={navLinkClass}>
+            Saved
           </Link>
         </div>
         <p className="text-base font-semibold text-slate-900">Trail Planner</p>

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { SaveTripButton } from "@/components/saved-trips/SaveTripButton";
 import { notFound } from "next/navigation";
 
 function getPackingItems(packingList: string | null): string[] {
@@ -61,10 +62,12 @@ export default async function TripPage({
   const packingItems = getPackingItems(trip.packingList);
 
   return (
-    <div className="relative">
-      <main className="space-y-8 pb-28">
+    <main className="space-y-8 pb-6">
       <header className="space-y-3">
-        <h1 className="text-3xl font-bold leading-tight text-slate-900">{trip.name}</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="text-3xl font-bold leading-tight text-slate-900">{trip.name}</h1>
+          <SaveTripButton tripId={trip.id} variant="full" className="w-full sm:w-auto" />
+        </div>
         <p className="text-sm leading-6 text-slate-700">{trip.description}</p>
       </header>
 
@@ -153,18 +156,6 @@ export default async function TripPage({
           </ul>
         </div>
       </section>
-      </main>
-
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 shadow-sm">
-        <div className="mx-auto w-full max-w-md">
-          <button
-            type="button"
-            className="flex h-12 w-full items-center justify-center rounded-xl bg-black px-4 text-sm font-medium text-white transition hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
-          >
-            Save Trip
-          </button>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 }

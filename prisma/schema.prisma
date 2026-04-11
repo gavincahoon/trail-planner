@@ -12,8 +12,10 @@ model Trip {
   location        String
   park            String
   days            Int
+  elevationGain   Int      @default(0)
   difficulty      String
   terrain         String
+  featured        Boolean  @default(false)
   description     String
 
   day1            String

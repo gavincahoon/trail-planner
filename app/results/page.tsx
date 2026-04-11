@@ -1,37 +1,65 @@
 import { FiltersBar } from "@/components/filters/FiltersBar";
+import { TripCard, TripCardData } from "@/components/trips/TripCard";
 import { prisma } from "@/lib/prisma";
-import { buildTripWhere, parseFilters } from "@/lib/trip-filters";
+import {
+  buildTripOrderBy,
+  buildTripWhere,
+  getDifficultyRank,
+  parseFilters,
+  parseSearchQuery,
+  parseSort,
+  SortOption,
+} from "@/lib/trip-filters";
 import Link from "next/link";
-
-type TripListItem = {
-  id: string;
-  name: string;
-  location: string;
-  park: string;
-  days: number;
-  difficulty: string;
-  terrain: string;
-  description: string;
-  whyThisTrip: string | null;
-}
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-function getShortDescription(text: string): string {
-  const maxLength = 170;
-  if (text.length <= maxLength) {
-    return text;
+function toURLSearchParams(params: SearchParams): URLSearchParams {
+  const query = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(params)) {
+    if (!value) {
+      continue;
+    }
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        query.append(key, item);
+      }
+      continue;
+    }
+
+    query.set(key, value);
   }
 
-  return `${text.slice(0, maxLength).trimEnd()}...`;
+  return query;
 }
 
-function getWhyThisTrip(trail: TripListItem): string {
-  if (trail.whyThisTrip?.trim()) {
-    return trail.whyThisTrip;
+function applyDifficultySort(
+  trails: TripCardData[],
+  sort: SortOption
+): TripCardData[] {
+  if (sort !== "Easiest Difficulty" && sort !== "Hardest Difficulty") {
+    return trails;
   }
 
-  return `Great for a ${trail.days}-day ${trail.difficulty.toLowerCase()} trip through ${trail.terrain.toLowerCase()} terrain in ${trail.park}.`;
+  const direction = sort === "Easiest Difficulty" ? 1 : -1;
+
+  return [...trails].sort((a, b) => {
+    const rankDiff =
+      (getDifficultyRank(a.difficulty) - getDifficultyRank(b.difficulty)) *
+      direction;
+    if (rankDiff !== 0) {
+      return rankDiff;
+    }
+
+    const dayDiff = a.days - b.days;
+    if (dayDiff !== 0) {
+      return dayDiff;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
 }
 
 export default async function ResultsPage({
@@ -41,11 +69,18 @@ export default async function ResultsPage({
 }) {
   const params = (searchParams ? await searchParams : {}) as SearchParams;
   const filters = parseFilters(params);
-  const where = buildTripWhere(filters);
+  const sort = parseSort(params);
+  const query = parseSearchQuery(params);
+  const where = buildTripWhere(filters, query);
+  const clearSearchParams = toURLSearchParams(params);
+  clearSearchParams.delete("q");
+  const clearSearchHref = clearSearchParams.toString()
+    ? `/results?${clearSearchParams.toString()}`
+    : "/results";
 
-  const trails: TripListItem[] = await prisma.trip.findMany({
+  const trails: TripCardData[] = await prisma.trip.findMany({
     where,
-    orderBy: [{ name: "asc" }],
+    orderBy: buildTripOrderBy(sort),
     select: {
       id: true,
       name: true,
@@ -58,58 +93,45 @@ export default async function ResultsPage({
       whyThisTrip: true,
     },
   });
+  const sortedTrails = applyDifficultySort(trails, sort);
 
   return (
     <main className="space-y-6">
       <h1 className="text-2xl font-bold text-slate-900">Trails</h1>
-      <FiltersBar filters={filters} />
+      <FiltersBar filters={filters} sort={sort} query={query} />
 
-      {trails.length === 0 && (
+      {sortedTrails.length === 0 && (
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
-          <p className="text-base font-semibold text-slate-900">No trails match your filters</p>
-          <p className="mt-1 text-sm text-slate-600">
-            Try removing one or more filters to see more trail options.
+          <p className="text-base font-semibold text-slate-900">
+            {query ? `No trips found for "${query}"` : "No trails match your filters"}
           </p>
+          <p className="mt-1 text-sm text-slate-600">
+            {query
+              ? "Try a broader search or clear filters to explore more options."
+              : "Try removing one or more filters to see more trail options."}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {query && (
+              <Link
+                href={clearSearchHref}
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-300 px-3 text-sm font-medium text-slate-800 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+              >
+                Clear search
+              </Link>
+            )}
+            <Link
+              href="/results"
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-black px-3 text-sm font-medium text-white transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+            >
+              Reset all
+            </Link>
+          </div>
         </div>
       )}
 
       <section className="space-y-5">
-        {trails.map((trail) => (
-          <Link
-            key={trail.id}
-            href={`/trip/${trail.id}`}
-            className="group block rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
-          >
-            <div className="space-y-1">
-              <h2 className="text-lg font-bold text-slate-900">{trail.name}</h2>
-              <p className="text-sm text-slate-500">
-                {trail.location} ({trail.park})
-              </p>
-            </div>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              <span className="rounded-full bg-gray-100 px-2 py-1 text-sm text-slate-700">
-                {trail.days} days
-              </span>
-              <span className="rounded-full bg-gray-100 px-2 py-1 text-sm text-slate-700">
-                {trail.difficulty}
-              </span>
-              <span className="rounded-full bg-gray-100 px-2 py-1 text-sm text-slate-700">
-                {trail.terrain}
-              </span>
-            </div>
-
-            <p className="mt-3 text-sm leading-6 text-slate-700">
-              {getShortDescription(trail.description)}
-            </p>
-
-            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-                Why this trip
-              </p>
-              <p className="mt-1 text-sm text-amber-900">{getWhyThisTrip(trail)}</p>
-            </div>
-          </Link>
+        {sortedTrails.map((trail) => (
+          <TripCard key={trail.id} trip={trail} />
         ))}
       </section>
     </main>

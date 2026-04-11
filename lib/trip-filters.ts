@@ -10,12 +10,29 @@ export const DIFFICULTY_OPTIONS = [
   "Advanced",
 ] as const;
 export const TERRAIN_OPTIONS = [ANY_OPTION, "Desert", "Mountains", "Lakes"] as const;
+export const SORT_OPTIONS = [
+  "Best Match",
+  "Shortest Duration",
+  "Easiest Difficulty",
+  "Hardest Difficulty",
+  "Lowest Elevation Gain",
+  "Highest Elevation Gain",
+  "Alphabetical A-Z",
+] as const;
+export const DEFAULT_SORT = "Best Match";
+const DIFFICULTY_RANK: Record<string, number> = {
+  Beginner: 0,
+  Intermediate: 1,
+  Advanced: 2,
+};
 
 export type TripFilters = {
   days: string;
   difficulty: string;
   terrain: string;
 };
+export type SortOption = (typeof SORT_OPTIONS)[number];
+export type QueryParamUpdates = Partial<TripFilters & { sort: SortOption; q: string }>;
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -58,34 +75,76 @@ export function parseFilters(searchParams: SearchParams): TripFilters {
   };
 }
 
-export function buildTripWhere(filters: TripFilters): Prisma.TripWhereInput {
-  const where: Prisma.TripWhereInput = {};
+export function parseSort(searchParams: SearchParams): SortOption {
+  const value = getSingleParamValue(searchParams.sort);
+  if (!value || !SORT_OPTIONS.includes(value as SortOption)) {
+    return DEFAULT_SORT;
+  }
+
+  return value as SortOption;
+}
+
+export function parseSearchQuery(searchParams: SearchParams): string | undefined {
+  const value = getSingleParamValue(searchParams.q)?.trim();
+  return value ? value : undefined;
+}
+
+export function buildTripWhere(
+  filters: TripFilters,
+  query?: string
+): Prisma.TripWhereInput {
+  const whereClauses: Prisma.TripWhereInput[] = [];
 
   if (filters.days !== ANY_OPTION) {
-    where.days = Number(filters.days);
+    whereClauses.push({ days: Number(filters.days) });
   }
 
   if (filters.difficulty !== ANY_OPTION) {
-    where.difficulty = filters.difficulty;
+    whereClauses.push({ difficulty: filters.difficulty });
   }
 
   if (filters.terrain !== ANY_OPTION) {
-    where.terrain = filters.terrain;
+    whereClauses.push({ terrain: filters.terrain });
   }
 
-  return where;
+  if (query) {
+    whereClauses.push({
+      OR: [
+        { name: { contains: query, mode: "insensitive" } },
+        { location: { contains: query, mode: "insensitive" } },
+        { park: { contains: query, mode: "insensitive" } },
+        { terrain: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
+        { whyThisTrip: { contains: query, mode: "insensitive" } },
+      ],
+    });
+  }
+
+  if (whereClauses.length === 0) {
+    return {};
+  }
+
+  if (whereClauses.length === 1) {
+    return whereClauses[0];
+  }
+
+  return { AND: whereClauses };
 }
 
 export function buildUpdatedQueryString(
   currentSearchParams: URLSearchParams,
-  updates: Partial<TripFilters>
+  updates: QueryParamUpdates
 ): string {
   const nextParams = new URLSearchParams(currentSearchParams.toString());
 
   for (const [key, value] of Object.entries(updates) as Array<
-    [keyof TripFilters, string | undefined]
+    [keyof QueryParamUpdates, string | undefined]
   >) {
-    if (!value || value === ANY_OPTION) {
+    if (
+      !value ||
+      value === ANY_OPTION ||
+      (key === "sort" && value === DEFAULT_SORT)
+    ) {
       nextParams.delete(key);
       continue;
     }
@@ -98,4 +157,30 @@ export function buildUpdatedQueryString(
 
 export function resetFilters(): TripFilters {
   return { ...DEFAULT_FILTERS };
+}
+
+export function buildTripOrderBy(
+  sort: SortOption
+): Prisma.TripOrderByWithRelationInput[] {
+  switch (sort) {
+    case "Best Match":
+      return [{ featured: "desc" }, { days: "asc" }, { name: "asc" }];
+    case "Shortest Duration":
+      return [{ days: "asc" }, { name: "asc" }];
+    case "Easiest Difficulty":
+    case "Hardest Difficulty":
+      return [{ days: "asc" }, { name: "asc" }];
+    case "Lowest Elevation Gain":
+      return [{ elevationGain: "asc" }, { name: "asc" }];
+    case "Highest Elevation Gain":
+      return [{ elevationGain: "desc" }, { name: "asc" }];
+    case "Alphabetical A-Z":
+      return [{ name: "asc" }];
+  }
+
+  return [{ featured: "desc" }, { days: "asc" }, { name: "asc" }];
+}
+
+export function getDifficultyRank(difficulty: string): number {
+  return DIFFICULTY_RANK[difficulty] ?? Number.MAX_SAFE_INTEGER;
 }

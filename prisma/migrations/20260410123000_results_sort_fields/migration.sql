@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Trip"
+ADD COLUMN "elevationGain" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "featured" BOOLEAN NOT NULL DEFAULT false;
