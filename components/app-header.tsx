@@ -12,7 +12,7 @@ export function AppHeader() {
 
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 py-3">
+      <div className="mx-auto flex w-full max-w-md items-center gap-3 px-4 py-3">
         <div className="flex items-center gap-2">
           {showBack && (
             <button
@@ -27,13 +27,12 @@ export function AppHeader() {
             href="/"
             className={navLinkClass}
           >
-            Home
+            Trail Planner
           </Link>
           <Link href="/saved-trips" className={navLinkClass}>
             Saved
           </Link>
         </div>
-        <p className="text-base font-semibold text-slate-900">Trail Planner</p>
       </div>
     </header>
   );

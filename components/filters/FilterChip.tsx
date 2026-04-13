@@ -40,7 +40,7 @@ export function FilterChip<T extends string>({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`h-10 whitespace-nowrap rounded-full border px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 ${
+        className={`h-10 touch-manipulation whitespace-nowrap rounded-full border px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 ${
           isActive
             ? "border-black bg-black text-white"
             : "border-slate-300 bg-white text-slate-900 hover:bg-slate-50"
@@ -59,7 +59,7 @@ export function FilterChip<T extends string>({
                 onSelect(option);
                 setOpen(false);
               }}
-              className={`block w-full px-4 py-2 text-left text-sm transition ${
+              className={`block w-full touch-manipulation px-4 py-2 text-left text-sm transition ${
                 selectedValue === option
                   ? "bg-slate-900 text-white"
                   : "text-slate-800 hover:bg-slate-50"

@@ -7,18 +7,16 @@ import {
   DAYS_OPTIONS,
   DIFFICULTY_OPTIONS,
   QueryParamUpdates,
-  SORT_OPTIONS,
   TERRAIN_OPTIONS,
-  SortOption,
   TripFilters,
 } from "@/lib/trip-filters";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FilterChip } from "./FilterChip";
 import { FiltersSheet } from "./FiltersSheet";
+import { SortChip } from "./SortChip";
 
 type FiltersBarProps = {
   filters: TripFilters;
-  sort: SortOption;
   query?: string;
 };
 
@@ -26,7 +24,7 @@ function isActive(value: string): boolean {
   return value !== ANY_OPTION;
 }
 
-export function FiltersBar({ filters, sort, query }: FiltersBarProps) {
+export function FiltersBar({ filters, query }: FiltersBarProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [queryDraft, setQueryDraft] = useState(query ?? "");
   const router = useRouter();
@@ -97,14 +95,8 @@ export function FiltersBar({ filters, sort, query }: FiltersBarProps) {
               ☰
             </button>
 
-            <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <FilterChip
-                label="Sort"
-                selectedValue={sort}
-                isActive
-                options={SORT_OPTIONS}
-                onSelect={(value) => pushWithUpdates({ sort: value })}
-              />
+            <div className="flex touch-pan-x gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <SortChip />
               <FilterChip
                 label="Days"
                 selectedValue={filters.days}

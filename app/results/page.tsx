@@ -1,14 +1,11 @@
 import { FiltersBar } from "@/components/filters/FiltersBar";
 import { TripCard, TripCardData } from "@/components/trips/TripCard";
 import { prisma } from "@/lib/prisma";
+import { applySorting, buildSortOrderBy, parseSort } from "@/lib/sort";
 import {
-  buildTripOrderBy,
   buildTripWhere,
-  getDifficultyRank,
   parseFilters,
   parseSearchQuery,
-  parseSort,
-  SortOption,
 } from "@/lib/trip-filters";
 import Link from "next/link";
 
@@ -35,33 +32,6 @@ function toURLSearchParams(params: SearchParams): URLSearchParams {
   return query;
 }
 
-function applyDifficultySort(
-  trails: TripCardData[],
-  sort: SortOption
-): TripCardData[] {
-  if (sort !== "Easiest Difficulty" && sort !== "Hardest Difficulty") {
-    return trails;
-  }
-
-  const direction = sort === "Easiest Difficulty" ? 1 : -1;
-
-  return [...trails].sort((a, b) => {
-    const rankDiff =
-      (getDifficultyRank(a.difficulty) - getDifficultyRank(b.difficulty)) *
-      direction;
-    if (rankDiff !== 0) {
-      return rankDiff;
-    }
-
-    const dayDiff = a.days - b.days;
-    if (dayDiff !== 0) {
-      return dayDiff;
-    }
-
-    return a.name.localeCompare(b.name);
-  });
-}
-
 export default async function ResultsPage({
   searchParams,
 }: {
@@ -69,6 +39,7 @@ export default async function ResultsPage({
 }) {
   const params = (searchParams ? await searchParams : {}) as SearchParams;
   const filters = parseFilters(params);
+  // URL sort param is parsed on the server so data ordering matches shared links/bookmarks.
   const sort = parseSort(params);
   const query = parseSearchQuery(params);
   const where = buildTripWhere(filters, query);
@@ -80,7 +51,7 @@ export default async function ResultsPage({
 
   const trails: TripCardData[] = await prisma.trip.findMany({
     where,
-    orderBy: buildTripOrderBy(sort),
+    orderBy: buildSortOrderBy(sort),
     select: {
       id: true,
       name: true,
@@ -93,12 +64,13 @@ export default async function ResultsPage({
       whyThisTrip: true,
     },
   });
-  const sortedTrails = applyDifficultySort(trails, sort);
+  // UI writes sort back to URL; server re-renders and this final in-memory pass handles rank-based difficulty sorts.
+  const sortedTrails = applySorting(trails, sort);
 
   return (
     <main className="space-y-6">
       <h1 className="text-2xl font-bold text-slate-900">Trails</h1>
-      <FiltersBar filters={filters} sort={sort} query={query} />
+      <FiltersBar filters={filters} query={query} />
 
       {sortedTrails.length === 0 && (
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">

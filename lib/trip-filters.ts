@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { DEFAULT_SORT, SortKey } from "@/lib/sort";
 
 export const ANY_OPTION = "Any";
 
@@ -10,29 +11,12 @@ export const DIFFICULTY_OPTIONS = [
   "Advanced",
 ] as const;
 export const TERRAIN_OPTIONS = [ANY_OPTION, "Desert", "Mountains", "Lakes"] as const;
-export const SORT_OPTIONS = [
-  "Best Match",
-  "Shortest Duration",
-  "Easiest Difficulty",
-  "Hardest Difficulty",
-  "Lowest Elevation Gain",
-  "Highest Elevation Gain",
-  "Alphabetical A-Z",
-] as const;
-export const DEFAULT_SORT = "Best Match";
-const DIFFICULTY_RANK: Record<string, number> = {
-  Beginner: 0,
-  Intermediate: 1,
-  Advanced: 2,
-};
-
 export type TripFilters = {
   days: string;
   difficulty: string;
   terrain: string;
 };
-export type SortOption = (typeof SORT_OPTIONS)[number];
-export type QueryParamUpdates = Partial<TripFilters & { sort: SortOption; q: string }>;
+export type QueryParamUpdates = Partial<TripFilters & { sort: SortKey; q: string }>;
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -73,15 +57,6 @@ export function parseFilters(searchParams: SearchParams): TripFilters {
       TERRAIN_OPTIONS
     ),
   };
-}
-
-export function parseSort(searchParams: SearchParams): SortOption {
-  const value = getSingleParamValue(searchParams.sort);
-  if (!value || !SORT_OPTIONS.includes(value as SortOption)) {
-    return DEFAULT_SORT;
-  }
-
-  return value as SortOption;
 }
 
 export function parseSearchQuery(searchParams: SearchParams): string | undefined {
@@ -157,30 +132,4 @@ export function buildUpdatedQueryString(
 
 export function resetFilters(): TripFilters {
   return { ...DEFAULT_FILTERS };
-}
-
-export function buildTripOrderBy(
-  sort: SortOption
-): Prisma.TripOrderByWithRelationInput[] {
-  switch (sort) {
-    case "Best Match":
-      return [{ featured: "desc" }, { days: "asc" }, { name: "asc" }];
-    case "Shortest Duration":
-      return [{ days: "asc" }, { name: "asc" }];
-    case "Easiest Difficulty":
-    case "Hardest Difficulty":
-      return [{ days: "asc" }, { name: "asc" }];
-    case "Lowest Elevation Gain":
-      return [{ elevationGain: "asc" }, { name: "asc" }];
-    case "Highest Elevation Gain":
-      return [{ elevationGain: "desc" }, { name: "asc" }];
-    case "Alphabetical A-Z":
-      return [{ name: "asc" }];
-  }
-
-  return [{ featured: "desc" }, { days: "asc" }, { name: "asc" }];
-}
-
-export function getDifficultyRank(difficulty: string): number {
-  return DIFFICULTY_RANK[difficulty] ?? Number.MAX_SAFE_INTEGER;
 }
